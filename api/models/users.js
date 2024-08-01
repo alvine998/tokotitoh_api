@@ -27,6 +27,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(250),
       allowNull: false
     },
+    role: {
+      type: DataTypes.ENUM('admin','super_admin','customer'),
+      allowNull: false
+    },
+    google_id: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     reset_otp: {
       type: DataTypes.STRING(6),
       allowNull: true
@@ -36,16 +44,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: 0
     },
-    role: {
-      type: DataTypes.ENUM('admin','super_admin','customer'),
-      allowNull: false
-    },
-    google_id: {
+    image: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    image: {
-      type: DataTypes.TEXT,
+    save_ads: {
+      type: DataTypes.JSON,
       allowNull: true
     },
     status: {
