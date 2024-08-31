@@ -195,7 +195,7 @@ exports.login = async (req, res) => {
 
 exports.loginbygoogle = async (req, res) => {
     try {
-        const { email, phoneNumber, uid, displayName, photoUrl } = req.body;
+        const { email, phoneNumber, uid, displayName, photoURL } = req.body;
         if (!email || !uid) {
             return res.status(400).send({ message: "Parameter tidak lengkap!" })
         }
@@ -215,7 +215,7 @@ exports.loginbygoogle = async (req, res) => {
             name: displayName,
             phone: phoneNumber || null,
             role: 'customer',
-            image: photoUrl || null
+            image: photoURL || null
         };
         const existEmail = await users.findOne({
             where: {
