@@ -1,21 +1,8 @@
-# docker-compose.yml
-
-version: "3"
-
+version: '3'
 services:
-  api:
-    networks:
-      - proxynet
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - "./upload/images/:/app/upload/images/"
+  app:
+    build: .
     ports:
-      - "8082:8082"
+      - "4000:4000"
     environment:
-      - NODE_ENV=production
-
-networks:
-  proxynet:
-    name: custom_network2
+      - NODE_ENV=development
