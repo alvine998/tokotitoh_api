@@ -1,19 +1,20 @@
-FROM node:lts-alpine3.16
+# Use the official Node.js 18 image as a base
+FROM node:18
 
-# Create app directory
-WORKDIR /app
+# Create and set the working directory
+WORKDIR /usr/src/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# Copy the package.json and package-lock.json files to the container
 COPY package*.json ./
 
+# Install dependencies
 RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
 
-# Bundle app source
+# Copy the rest of the app's code to the container
 COPY . .
 
-EXPOSE 8082
-CMD [ "npm", "run", "start" ]
+# Expose the port the app will run on
+EXPOSE 4000
+
+# Start the app
+CMD ["node", "index.js"]
