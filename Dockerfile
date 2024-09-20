@@ -2,7 +2,7 @@
 FROM node:18
 
 # Create and set the working directory
-WORKDIR /usr/src/app
+WORKDIR /var/www/tokotitoh_api
 
 # Copy the package.json and package-lock.json files to the container
 COPY package*.json ./
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose the port the app will run on
-EXPOSE 4000
+EXPOSE 5000
 
 # Start the app
 CMD ["node", "index.js"]
