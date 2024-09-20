@@ -1,20 +1,20 @@
-# Use the official Node.js 18 image as a base
+# Dockerfile for Express.js App
+
+# Use Node.js base image
 FROM node:18
 
-# Create and set the working directory
-WORKDIR /var/www/tokotitoh_api
+# Create app directory
+WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json files to the container
+# Install app dependencies
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the app's code to the container
+# Copy app source code
 COPY . .
 
-# Expose the port the app will run on
+# Expose the port your app runs on
 EXPOSE 5000
 
 # Start the app
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
