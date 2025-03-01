@@ -35,6 +35,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    email_otp: {
+      type: DataTypes.STRING(6),
+      allowNull: true
+    },
     reset_otp: {
       type: DataTypes.STRING(6),
       allowNull: true
@@ -51,6 +55,11 @@ module.exports = function(sequelize, DataTypes) {
     save_ads: {
       type: DataTypes.JSON,
       allowNull: true
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 1
     },
     status: {
       type: DataTypes.BOOLEAN,

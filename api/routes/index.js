@@ -35,6 +35,7 @@ module.exports = (app) => {
 
     app.post('/file-upload', upload.single('file'), cUpload.upload);
     app.post('/sendmail', middlewareHere, cMailer.sendEmail);
+    app.post('/sendmail/verification/registration', middlewareHere, cMailer.sendEmailVerificationRegister);
 
     app.get('/provinces', middlewareHere, cGeolocation.listProvince);
     app.get('/cities', middlewareHere, cGeolocation.listCity);
@@ -67,6 +68,7 @@ module.exports = (app) => {
     app.delete('/user', middlewareHere, middlewarePackageName, cUser.delete);
     app.post('/user/login', middlewareHere, middlewarePackageName, cUser.login);
     app.post('/user/verification', middlewareHere, middlewarePackageName, cUser.verificationResetPassword);
+    app.post('/user/verification/registration', middlewareHere, middlewarePackageName, cUser.verificationRegistration);
     app.post('/user/login/by/google', middlewareHere, middlewarePackageName, cUser.loginbygoogle);
 
     app.get('/reports', middlewareHere, middlewarePackageName, cReport.list);

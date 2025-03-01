@@ -71,3 +71,69 @@ exports.sendEmail = async (req, res) => {
         return
     }
 };
+
+exports.sendEmailVerificationRegister = async (req, res) => {
+    try {
+        ['from', 'to']?.map(value => {
+            if (!req.body[value]) {
+                return res.status(400).send({
+                    status: "error",
+                    error_message: "Parameter tidak lengkap " + value,
+                    code: 400
+                })
+            }
+        })
+
+        const existUser = await users.findOne({
+            where: {
+                email: { [Op.eq]: req.body.to },
+                role: { [Op.eq]: 'customer' },
+                deleted: { [Op.eq]: 0 }
+            }
+        })
+
+        if (!existUser) {
+            return res.status(400).send({
+                status: "not found",
+                error_message: "Email belum terdaftar",
+                code: 400
+            })
+        }
+        const otp = generateRandomSixDigitNumber()
+        await users.update({
+            email_otp: otp
+        }, {
+            where: {
+                deleted: { [Op.eq]: 0 },
+                id: { [Op.eq]: existUser.id }
+            }
+        })
+        const transport = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        });
+        const payload = {
+            ...req.body,
+            subject: "Register Verification Tokotitoh",
+            text: `Gunakan Kode OTP ini untuk verifikasi pendaftaran di Tokotitoh: ${otp}`,
+        };
+        transport.sendMail(payload, function (error, info) {
+            if (error) throw Error(error);
+            console.log('email send successfully');
+            console.log(info);
+        })
+        return res.status(200).send({
+            status: "success",
+            message: "Email Sent",
+            items: existUser,
+            code: 200
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Server mengalami gangguan!", error: error })
+        return
+    }
+};
