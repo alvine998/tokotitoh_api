@@ -66,8 +66,10 @@ exports.create = async (req, res) => {
         const existUser = await users.findOne({
             where: {
                 deleted: { [Op.eq]: 0 },
-                email: { [Op.eq]: req.body.email },
-                phone: { [Op.eq]: req.body.phone }
+                [Op.or]: [
+                    { email: { [Op.eq]: req.body.email } },
+                    { phone: { [Op.eq]: req.body.phone } }
+                ]
             }
         })
         if (existUser) {
@@ -82,9 +84,6 @@ exports.create = async (req, res) => {
             verified: req.body.role == "customer" ? 0 : 1,
             email_otp: null
         };
-        if(req.body.role == "customer"){
-
-        }
         const result = await users.create(payload)
         return res.status(200).send({
             status: "success",
