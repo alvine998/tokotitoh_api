@@ -1,20 +1,20 @@
-# Dockerfile for Express.js App
+# Use a lightweight Bun image
+FROM oven/bun:latest
 
-# Use Node.js base image
-FROM node:18
+# Set working directory
+WORKDIR /app
 
-# Create app directory
-WORKDIR /usr/src/app
+# Copy package files first to leverage Docker cache
+COPY package.json ./
 
-# Install app dependencies
-COPY package*.json ./
-RUN npm install
+# Install dependencies
+RUN bun install
 
-# Copy app source code
+# Copy the rest of the project files
 COPY . .
 
-# Expose the port your app runs on
-EXPOSE 5000
+# Expose port (adjust based on your app)
+EXPOSE 4000
 
-# Start the app
-CMD ["npm", "start"]
+# Start the application
+CMD ["bun", "run", "dev"]

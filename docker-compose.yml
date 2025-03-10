@@ -1,37 +1,16 @@
 version: '3.8'
-services:
-  mysql:
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: tokotitoh2024!
-      MYSQL_DATABASE: marketplace
-      MYSQL_USER: root
-      MYSQL_PASSWORD: tokotitoh2024!
-    ports:
-      - "3306:3306"  # Expose MySQL port
-    volumes:
-      - db_data:/var/lib/mysql  # Persist database data
-    networks:
-      - app-network
 
+services:
   express-app:
+    container_name: tokotitoh-api
     build: .
     ports:
-      - "5000:5000"  # Expose Express.js app port
-    depends_on:
-      - mysql  # Ensure MySQL starts before the Express.js app
-    environment:
-      DB_HOST: mysql  # Hostname is the service name (mysql)
-      DB_USER: root
-      DB_PASSWORD: tokotitoh2024!
-      DB_NAME: marketplace
+      - "4000:4000"
     volumes:
-      - .:/usr/src/app  # Mount your app code
-    networks:
-      - app-network
-
-volumes:
-  db_data:
-
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
 networks:
-  app-network:
+  web:
+    external: true
