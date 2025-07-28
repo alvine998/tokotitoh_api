@@ -102,8 +102,7 @@ exports.update = async (req, res) => {
         const result = await users.findOne({
             where: {
                 deleted: { [Op.eq]: 0 },
-                id: { [Op.eq]: req.body.id },
-                email: { [Op.eq]: req.body.email }
+                id: { [Op.eq]: req.body.id }
             }
         })
         if (!result) {
