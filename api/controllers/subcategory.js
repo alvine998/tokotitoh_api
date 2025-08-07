@@ -23,7 +23,7 @@ exports.list = async (req, res) => {
           [Op.or]: [{ name: { [Op.like]: `%${req.query.search}%` } }],
         }),
       },
-      order: [["created_on", "DESC"]],
+      order: [["index", "ASC"]],
       attributes: { exclude: ["deleted"] },
       ...(req.query.pagination == "true" && {
         limit: size,
