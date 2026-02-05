@@ -19,6 +19,9 @@ exports.list = async (req, res) => {
         ...(req.query.brand_id && {
           brand_id: { [Op.eq]: req.query.brand_id },
         }),
+        ...(req.query.brand_ids && {
+          brand_id: { [Op.in]: req.query.brand_ids },
+        }),
         ...(req.query.status && { status: { [Op.in]: req.query.status } }),
         ...(req.query.search && {
           [Op.or]: [{ name: { [Op.like]: `%${req.query.search}%` } }],
