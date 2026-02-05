@@ -20,7 +20,11 @@ exports.list = async (req, res) => {
           brand_id: { [Op.eq]: req.query.brand_id },
         }),
         ...(req.query.brand_ids && {
-          brand_id: { [Op.in]: req.query.brand_ids },
+          brand_id: {
+            [Op.in]: Array.isArray(req.query.brand_ids)
+              ? req.query.brand_ids
+              : req.query.brand_ids.split(","),
+          },
         }),
         ...(req.query.status && { status: { [Op.in]: req.query.status } }),
         ...(req.query.search && {
