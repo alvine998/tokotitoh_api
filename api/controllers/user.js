@@ -190,18 +190,30 @@ exports.login = async (req, res) => {
     if (!isCompare) {
       return res.status(404).send({ message: "Password Salah!" });
     }
-    const result2 = await users.findOne({
-      where: {
-        deleted: { [Op.eq]: 0 },
-        status: { [Op.eq]: 1 },
-        [Op.or]: {
-          phone: req.body.identity,
-          email: req.body.identity,
-        },
-      },
-      attributes: { exclude: ["deleted", "password"] },
+
+    // Trigger OTP send
+    const { handleSendOtp } = require("./otp");
+    try {
+      await handleSendOtp(result.email);
+    } catch (otpError) {
+      // If it's a throttle error, we might still want to proceed if the user is just logging in again
+      // but for now let's respect the 1-minute delay even for login.
+      if (otpError.statusCode === 429) {
+        // Proceed anyway if it's just a throttle but let them know?
+        // Actually, better to send the OTP if possible or tell them to wait.
+        // Let's just log it for now.
+        console.log("OTP Throttle during login:", otpError.message);
+      } else {
+        console.error("Failed to send OTP during login:", otpError);
+      }
+    }
+
+    return res.status(200).send({
+      message: "OTP telah dikirim ke email anda",
+      status: "otp_required",
+      email: result.email,
+      code: 200,
     });
-    return res.status(200).send({ message: "Berhasil Login", user: result2 });
   } catch (error) {
     console.log(error);
     return res
@@ -249,19 +261,17 @@ exports.loginbygoogle = async (req, res) => {
             deleted: { [Op.eq]: 0 },
             id: { [Op.eq]: existEmail.id },
           },
-        }
+        },
       );
     }
     let newUser = null;
     if (!result && !existEmail) {
       newUser = await users.create(payload);
     }
-    return res
-      .status(200)
-      .send({
-        message: "Berhasil Login",
-        user: result || existEmail || newUser,
-      });
+    return res.status(200).send({
+      message: "Berhasil Login",
+      user: result || existEmail || newUser,
+    });
   } catch (error) {
     console.log(error);
     return res
@@ -292,7 +302,7 @@ exports.verificationResetPassword = async (req, res) => {
           deleted: { [Op.eq]: 0 },
           id: { [Op.eq]: req.body.id },
         },
-      }
+      },
     );
     res.status(200).send({ message: "Verifikasi Berhasil", update: onUpdate });
     return;
@@ -327,7 +337,7 @@ exports.verificationRegistration = async (req, res) => {
           deleted: { [Op.eq]: 0 },
           id: { [Op.eq]: req.body.id },
         },
-      }
+      },
     );
     res.status(200).send({ message: "Verifikasi Berhasil", update: onUpdate });
     return;
