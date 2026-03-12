@@ -134,6 +134,12 @@ module.exports = (app) => {
     middlewarePackageName,
     cUser.resetPassword,
   );
+  app.post(
+    "/user/forgot-password",
+    middlewareHere,
+    middlewarePackageName,
+    cUser.forgotPassword,
+  );
 
   app.post("/otp/send", middlewareHere, middlewarePackageName, cOtp.sendOtp);
   app.post(

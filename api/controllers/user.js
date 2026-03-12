@@ -388,15 +388,92 @@ exports.resetPassword = async (req, res) => {
       {
         password: hashedPassword,
         reset_otp: null,
+        reset_status: null,
       },
       {
         where: { id: user.id },
-      }
+      },
     );
 
     return res.status(200).send({
       status: "success",
       message: "Password berhasil diubah",
+      code: 200,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      status: "error",
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).send({
+        status: "error",
+        message: "Email harus diisi!",
+        code: 400,
+      });
+    }
+
+    const user = await users.findOne({
+      where: {
+        email: { [Op.eq]: email },
+        deleted: { [Op.eq]: 0 },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).send({
+        status: "error",
+        message: "Email tidak terdaftar!",
+        code: 400,
+      });
+    }
+
+    const { generateRandomSixDigitNumber } = require("../../utils");
+    const otp = generateRandomSixDigitNumber();
+    const now = new Date();
+
+    await users.update(
+      {
+        email_otp: otp,
+        reset_otp: otp,
+        reset_status: (user.reset_status || 0) + 1,
+        last_otp_sent_at: now,
+      },
+      {
+        where: { id: user.id },
+      },
+    );
+
+    const nodemailer = require("nodemailer");
+    const transport = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Reset Password OTP - Tokotitoh",
+      text: `Gunakan Kode OTP ini untuk verifikasi pemulihan password anda: ${otp}`,
+    };
+
+    await transport.sendMail(mailOptions);
+
+    return res.status(200).send({
+      status: "success",
+      message: "OTP berhasil dikirim ke email anda",
       code: 200,
     });
   } catch (error) {
