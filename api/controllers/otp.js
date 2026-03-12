@@ -146,9 +146,15 @@ exports.verifyOtp = async (req, res) => {
       },
     );
 
+    const updatedUser = await users.findOne({
+      where: { id: user.id, deleted: { [Op.eq]: 0 } },
+      attributes: { exclude: ["deleted", "password"] },
+    });
+
     return res.status(200).send({
       status: "success",
       message: "OTP verified successfully. User is now verified.",
+      user: updatedUser,
       code: 200,
     });
   } catch (error) {

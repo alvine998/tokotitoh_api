@@ -186,6 +186,11 @@ exports.login = async (req, res) => {
     if (!result) {
       return res.status(404).send({ message: "Akun Belum Terdaftar!" });
     }
+    if (result.password === "loginbygoogle" || result.password === "") {
+      return res
+        .status(404)
+        .send({ message: "Akun anda telah terdaftar melalui Google" });
+    }
     const isCompare = await bcrypt.compare(password, result.password);
     if (!isCompare) {
       return res.status(404).send({ message: "Password Salah!" });
@@ -309,7 +314,15 @@ exports.verificationResetPassword = async (req, res) => {
         },
       },
     );
-    res.status(200).send({ message: "Verifikasi Berhasil", update: onUpdate });
+    const updatedUser = await users.findOne({
+      where: { id: req.body.id, deleted: { [Op.eq]: 0 } },
+      attributes: { exclude: ["deleted", "password"] },
+    });
+    res.status(200).send({
+      message: "Verifikasi Berhasil",
+      update: onUpdate,
+      user: updatedUser,
+    });
     return;
   } catch (error) {
     console.log(error);
@@ -344,7 +357,15 @@ exports.verificationRegistration = async (req, res) => {
         },
       },
     );
-    res.status(200).send({ message: "Verifikasi Berhasil", update: onUpdate });
+    const updatedUser = await users.findOne({
+      where: { id: req.body.id, deleted: { [Op.eq]: 0 } },
+      attributes: { exclude: ["deleted", "password"] },
+    });
+    res.status(200).send({
+      message: "Verifikasi Berhasil",
+      update: onUpdate,
+      user: updatedUser,
+    });
     return;
   } catch (error) {
     console.log(error);
