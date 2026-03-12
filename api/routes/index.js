@@ -128,6 +128,12 @@ module.exports = (app) => {
     middlewarePackageName,
     cUser.loginbygoogle,
   );
+  app.post(
+    "/user/reset-password",
+    middlewareHere,
+    middlewarePackageName,
+    cUser.resetPassword,
+  );
 
   app.post("/otp/send", middlewareHere, middlewarePackageName, cOtp.sendOtp);
   app.post(

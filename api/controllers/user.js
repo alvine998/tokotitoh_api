@@ -192,7 +192,7 @@ exports.login = async (req, res) => {
     }
 
     // Check if user is already verified
-    if (result.verified === 1) {
+    if (result.verified === 1 && result.email_otp == null) {
       const user = await users.findOne({
         where: { id: result.id, deleted: { [Op.eq]: 0 } },
         attributes: { exclude: ["deleted", "password"] },
@@ -351,5 +351,61 @@ exports.verificationRegistration = async (req, res) => {
     return res
       .status(500)
       .send({ message: "Gagal mendapatkan data admin", error: error });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, password } = req.body;
+    if (!email || !otp || !password) {
+      return res.status(400).send({
+        status: "error",
+        message: "Parameter tidak lengkap!",
+        code: 400,
+      });
+    }
+
+    const user = await users.findOne({
+      where: {
+        email: { [Op.eq]: email },
+        reset_otp: { [Op.eq]: otp },
+        deleted: { [Op.eq]: 0 },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).send({
+        status: "error",
+        message: "Email atau Kode OTP Salah!",
+        code: 400,
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await users.update(
+      {
+        password: hashedPassword,
+        reset_otp: null,
+      },
+      {
+        where: { id: user.id },
+      }
+    );
+
+    return res.status(200).send({
+      status: "success",
+      message: "Password berhasil diubah",
+      code: 200,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      status: "error",
+      message: "Internal server error",
+      error: error.message,
+      code: 500,
+    });
   }
 };
