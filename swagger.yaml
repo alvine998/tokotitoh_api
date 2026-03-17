@@ -557,6 +557,48 @@ paths:
                 email: alvineyoga@gmail.com
                 code: 200
 
+  /user/admin/login:
+    post:
+      tags: [User]
+      summary: Admin Login
+      description: Authenticates an admin user (admin or super_admin) without OTP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identity
+                - password
+              properties:
+                identity:
+                  type: string
+                  description: Email or phone number of the admin.
+                  example: admin@tokotitoh.co.id
+                password:
+                  type: string
+                  description: Admin's password.
+                  example: adminpassword
+      responses:
+        "200":
+          description: Successful admin login.
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: "Berhasil Login Admin"
+                user:
+                  id: 1
+                  name: Admin
+                  email: admin@tokotitoh.co.id
+                  role: admin
+                code: 200
+        "401":
+          description: Invalid password.
+        "404":
+          description: Admin account not found.
+
   /user/login/by/google:
     post:
       tags: [User]
