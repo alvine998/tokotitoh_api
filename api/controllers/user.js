@@ -231,6 +231,65 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.adminLogin = async (req, res) => {
+  try {
+    const { identity, password } = req.body;
+    if (!identity || !password) {
+      return res.status(400).send({
+        status: "error",
+        message: "Masukkan Identity (Email/Phone) dan Password!",
+        code: 400,
+      });
+    }
+
+    const result = await users.findOne({
+      where: {
+        deleted: { [Op.eq]: 0 },
+        status: { [Op.eq]: 1 },
+        role: { [Op.in]: ["admin", "super_admin"] },
+        [Op.or]: [{ phone: identity }, { email: identity }],
+      },
+    });
+
+    if (!result) {
+      return res.status(404).send({
+        status: "error",
+        message: "Akun Admin Tidak Ditemukan!",
+        code: 404,
+      });
+    }
+
+    const isCompare = await bcrypt.compare(password, result.password);
+    if (!isCompare) {
+      return res.status(401).send({
+        status: "error",
+        message: "Password Salah!",
+        code: 401,
+      });
+    }
+
+    const user = await users.findOne({
+      where: { id: result.id, deleted: { [Op.eq]: 0 } },
+      attributes: { exclude: ["deleted", "password"] },
+    });
+
+    return res.status(200).send({
+      status: "success",
+      message: "Berhasil Login Admin",
+      user: user,
+      code: 200,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      status: "error",
+      message: "Terjadi kesalahan pada server",
+      error: error.message,
+      code: 500,
+    });
+  }
+};
+
 exports.loginbygoogle = async (req, res) => {
   try {
     const { email, phoneNumber, uid, displayName, photoURL } = req.body;
