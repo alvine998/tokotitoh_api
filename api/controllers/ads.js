@@ -92,7 +92,7 @@ exports.list = async (req, res) => {
         }),
         ...(req.query.km && { km: { [Op.eq]: req.query.km } }),
         ...(req.query.color && { color: { [Op.eq]: req.query.color } }),
-        ...(req.query.status && { status: { [Op.eq]: req.query.status } }),
+        ...(req.query.status && { status: { [Op.eq]: +req.query.status } }),
         ...(req.query.condition && {
           condition: { [Op.eq]: req.query.condition },
         }),
