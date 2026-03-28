@@ -154,14 +154,30 @@ exports.delete = async (req, res) => {
     if (!result) {
       return res.status(404).send({ message: "Data tidak ditemukan!" });
     }
+
+    // Soft delete associated data
+    await db.ads.update(
+      { deleted: 1 },
+      { where: { user_id: { [Op.eq]: req.query.id } } },
+    );
+    await db.notifications.update(
+      { deleted: 1 },
+      { where: { user_id: { [Op.eq]: req.query.id } } },
+    );
+    await db.reports.update(
+      { deleted: 1 },
+      { where: { user_id: { [Op.eq]: req.query.id } } },
+    );
+
     result.deleted = 1;
     await result.save();
     res.status(200).send({ message: "Berhasil hapus data" });
     return;
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
-      .send({ message: "Gagal mendapatkan data admin", error: error });
+      .send({ message: "Gagal menghapus data user", error: error.message });
   }
 };
 
