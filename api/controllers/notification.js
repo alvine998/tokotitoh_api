@@ -18,6 +18,7 @@ exports.list = async (req, res) => {
         ...(req.query.id && { id: { [Op.eq]: req.query.id } }),
         ...(req.query.user_id && { user_id: { [Op.eq]: req.query.user_id } }),
         ...(req.query.status && { status: { [Op.in]: req.query.status } }),
+        ...(req.query.is_read && { is_read: { [Op.eq]: req.query.is_read } }),
         ...(req.query.search && {
           [Op.or]: [
             { title: { [Op.like]: `%${req.query.search}%` } },
@@ -79,6 +80,7 @@ exports.create = async (req, res) => {
       ...req.body,
       partner_code: req.header("x-partner-code"),
       user_name: user.name,
+      is_read: 0,
     };
     const result = await notifications.create(payload);
     return res.status(200).send({

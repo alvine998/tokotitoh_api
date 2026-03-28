@@ -4,6 +4,19 @@ const users = db.users;
 const Op = db.Sequelize.Op;
 require("dotenv").config();
 
+const sanitizeWa = (wa) => {
+  if (!wa) return wa;
+  let cleanWa = wa.toString().replace(/\s+/g, ""); // remove spaces
+  if (cleanWa.startsWith("0")) {
+    cleanWa = "62" + cleanWa.slice(1);
+  } else if (cleanWa.startsWith("+62")) {
+    cleanWa = "62" + cleanWa.slice(3);
+  } else if (cleanWa.startsWith("8")) {
+    cleanWa = "62" + cleanWa;
+  }
+  return cleanWa;
+};
+
 // Retrieve and return all notes from the database.
 exports.list = async (req, res) => {
   try {
@@ -151,6 +164,7 @@ exports.create = async (req, res) => {
 
     const payload = {
       ...req.body,
+      wa: sanitizeWa(req.body.wa),
       partner_code: req.header("x-partner-code"),
     };
     const result = await ads.create(payload);
@@ -182,6 +196,10 @@ exports.update = async (req, res) => {
     const payload = {
       ...req.body,
     };
+
+    if (payload.wa) {
+      payload.wa = sanitizeWa(payload.wa);
+    }
     const onUpdate = await ads.update(payload, {
       where: {
         deleted: { [Op.eq]: 0 },
