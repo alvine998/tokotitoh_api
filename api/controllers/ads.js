@@ -50,33 +50,28 @@ exports.list = async (req, res) => {
         ...(req.query.category_id && {
           category_id: { [Op.eq]: req.query.category_id },
         }),
-        ...(req.query.max &&
-          req.query.min && {
-            price: {
-              [Op.between]: [
-                parseFloat(req.query.min),
-                parseFloat(req.query.max),
-              ],
-            },
-          }),
-        ...(req.query.maxArea &&
-          req.query.minArea && {
-            area: {
-              [Op.between]: [
-                parseFloat(req.query.minArea),
-                parseFloat(req.query.maxArea),
-              ],
-            },
-          }),
-        ...(req.query.maxBuilding &&
-          req.query.minBuilding && {
-            building: {
-              [Op.between]: [
-                parseFloat(req.query.minBuilding),
-                parseFloat(req.query.maxBuilding),
-              ],
-            },
-          }),
+        ...((req.query.min || req.query.max) && {
+          price: {
+            ...(req.query.min && { [Op.gte]: parseFloat(req.query.min) }),
+            ...(req.query.max && { [Op.lte]: parseFloat(req.query.max) }),
+          },
+        }),
+        ...((req.query.minArea || req.query.maxArea) && {
+          area: {
+            ...(req.query.minArea && { [Op.gte]: parseFloat(req.query.minArea) }),
+            ...(req.query.maxArea && { [Op.lte]: parseFloat(req.query.maxArea) }),
+          },
+        }),
+        ...((req.query.minBuilding || req.query.maxBuilding) && {
+          building: {
+            ...(req.query.minBuilding && {
+              [Op.gte]: parseFloat(req.query.minBuilding),
+            }),
+            ...(req.query.maxBuilding && {
+              [Op.lte]: parseFloat(req.query.maxBuilding),
+            }),
+          },
+        }),
         ...(req.query.subcategory_id && {
           subcategory_id: { [Op.eq]: req.query.subcategory_id },
         }),
@@ -93,10 +88,12 @@ exports.list = async (req, res) => {
         ...(req.query.ownership && {
           ownership: { [Op.eq]: req.query.ownership },
         }),
-        ...(req.query.year_start &&
-          req.query.year_end && {
-            year: { [Op.between]: [req.query.year_start, req.query.year_end] },
-          }),
+        ...((req.query.year_start || req.query.year_end) && {
+          year: {
+            ...(req.query.year_start && { [Op.gte]: req.query.year_start }),
+            ...(req.query.year_end && { [Op.lte]: req.query.year_end }),
+          },
+        }),
         ...(req.query.transmission && {
           transmission: { [Op.eq]: req.query.transmission },
         }),
