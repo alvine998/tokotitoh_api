@@ -58,8 +58,12 @@ exports.list = async (req, res) => {
         }),
         ...((req.query.minArea || req.query.maxArea) && {
           area: {
-            ...(req.query.minArea && { [Op.gte]: parseFloat(req.query.minArea) }),
-            ...(req.query.maxArea && { [Op.lte]: parseFloat(req.query.maxArea) }),
+            ...(req.query.minArea && {
+              [Op.gte]: parseFloat(req.query.minArea),
+            }),
+            ...(req.query.maxArea && {
+              [Op.lte]: parseFloat(req.query.maxArea),
+            }),
           },
         }),
         ...((req.query.minBuilding || req.query.maxBuilding) && {
@@ -107,7 +111,10 @@ exports.list = async (req, res) => {
           condition: { [Op.eq]: req.query.condition },
         }),
         ...(req.query.search && {
-          [Op.or]: [{ title: { [Op.like]: `%${req.query.search}%` } }],
+          [Op.or]: [
+            { title: { [Op.like]: `%${req.query.search}%` } },
+            { description: { [Op.like]: `%${req.query.search}%` } },
+          ],
         }),
       },
       order: order,
